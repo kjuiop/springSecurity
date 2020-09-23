@@ -31,6 +31,7 @@ public class SampleService {
         boolean authenticated = authentication.isAuthenticated();
     }
 
+
     public void threadLocal() {
         Account account = AccountContext.getAccount();
         System.out.println("============");
