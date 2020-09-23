@@ -1,5 +1,7 @@
 package com.gig.gongmo.controller;
 
+import com.gig.gongmo.account.AccountContext;
+import com.gig.gongmo.account.AccountRepository;
 import com.gig.gongmo.sample.SampleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,6 +15,7 @@ import java.security.Principal;
 public class IndexController {
 
     private final SampleService sampleService;
+    private final AccountRepository accountRepository;
 
     @GetMapping("/")
     public String index(Model model, Principal principal) {
@@ -34,6 +37,7 @@ public class IndexController {
     @GetMapping("/dashboard")
     public String dashboard(Model model, Principal principal) {
         model.addAttribute("message", "Hello" + principal.getName());
+        AccountContext.setAccount(accountRepository.findAccountByUsername(principal.getName()));
         sampleService.dashboard();
         return "dashboard";
     }

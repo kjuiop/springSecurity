@@ -1,5 +1,7 @@
 package com.gig.gongmo.sample;
 
+import com.gig.gongmo.account.Account;
+import com.gig.gongmo.account.AccountContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +29,12 @@ public class SampleService {
 
         // 인증된 사용자인지 여부
         boolean authenticated = authentication.isAuthenticated();
+    }
+
+    public void threadLocal() {
+        Account account = AccountContext.getAccount();
+        System.out.println("============");
+        System.out.println(account.getUsername());
     }
 
 }
