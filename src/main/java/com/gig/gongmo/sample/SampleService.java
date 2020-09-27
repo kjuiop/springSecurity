@@ -5,6 +5,7 @@ import com.gig.gongmo.account.AccountContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -20,6 +21,11 @@ public class SampleService {
 
         // principal 은 로그인한 객체로 User 타입 ( UserDetails 타입 안의 User )
         Object principal = authentication.getPrincipal();
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        System.out.println("===============================");
+        System.out.println(userDetails.getUsername());
 
         // 로그인한 principal 의 권한 ( Roles )
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
