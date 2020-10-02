@@ -62,12 +62,18 @@ public class IndexController {
     @ResponseBody
     public Callable<String> asyncHandler() {
         SecurityLogger.log("MVC");
-        return new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                SecurityLogger.log("Callable");
-                return "Async Handler";
-            }
+        return () -> {
+            SecurityLogger.log("Callable");
+            return "Async Handler";
         };
+    }
+
+    @GetMapping("/async-service")
+    @ResponseBody
+    public String asyncService() {
+        SecurityLogger.log("MVC, before async service");
+        sampleService.asyncService();
+        SecurityLogger.log("MVC, after async service");
+        return "Async Service";
     }
 }
