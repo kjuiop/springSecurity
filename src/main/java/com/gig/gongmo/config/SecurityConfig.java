@@ -2,6 +2,7 @@ package com.gig.gongmo.config;
 
 import com.gig.gongmo.account.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
@@ -55,6 +56,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    }
 
     @Override
+    public void configure(WebSecurity web) throws Exception {
+//      web.ignoring().mvcMatchers("/favicon.ico");
+//      스프링 시큐리티 적용에 아예 제외해서 서블릿 resource 를 아낌
+//      정적인 resource 에 관련한 부분은 여기서 처리하는 것이 효율적임
+        web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+        web.ignoring().requestMatchers(PathRequest.toH2Console());
+    }
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .mvcMatchers("/", "/info", "/account/**").permitAll()
@@ -68,10 +78,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             http.httpBasic();
     }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().mvcMatchers("/favicon.ico");
-    }
+
 
     /**
      userDetailsService 주입 방법

@@ -2,13 +2,17 @@ package com.gig.gongmo.controller;
 
 import com.gig.gongmo.account.AccountContext;
 import com.gig.gongmo.account.AccountRepository;
+import com.gig.gongmo.common.SecurityLogger;
 import com.gig.gongmo.sample.SampleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.security.Principal;
+import java.util.concurrent.Callable;
 
 @Controller
 @RequiredArgsConstructor
@@ -52,5 +56,18 @@ public class IndexController {
     public String user(Model model, Principal principal) {
         model.addAttribute("message", "Hello User, " + principal.getName());
         return "user";
+    }
+
+    @GetMapping("/async-handler")
+    @ResponseBody
+    public Callable<String> asyncHandler() {
+        SecurityLogger.log("MVC");
+        return new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                SecurityLogger.log("Callable");
+                return "Async Handler";
+            }
+        };
     }
 }
