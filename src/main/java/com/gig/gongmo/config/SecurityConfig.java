@@ -62,13 +62,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //      스프링 시큐리티 적용에 아예 제외해서 서블릿 resource 를 아낌
 //      정적인 resource 에 관련한 부분은 여기서 처리하는 것이 효율적임
         web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
-        web.ignoring().requestMatchers(PathRequest.toH2Console());
+//        web.ignoring().requestMatchers(PathRequest.toH2Console());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .mvcMatchers("/", "/info", "/account/**").permitAll()
+                .mvcMatchers("/", "/info", "/account/**", "/signup").permitAll()
                 .mvcMatchers("/admin").hasRole("ADMIN")
                 .mvcMatchers("/user").hasRole("USER")
                 .anyRequest().authenticated()
@@ -77,6 +77,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
             http.formLogin();
             http.httpBasic();
+
+            // csrf 토큰을 사용하지 않겠다는 소스
+            // http.csrf().disable();
 
         // 다른 Thread 아래의 것들도 공유해서 사용할 수 있음.
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
