@@ -75,14 +75,30 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .expressionHandler(expressionHandler());
 //                .accessDecisionManager(accessDecisionManager());
 
-            http.formLogin();
+            http.formLogin()
+                .loginPage("/login")
+                .permitAll();
+//                .usernameParameter("my-username")
+//                .passwordParameter("my-password");
+
             http.httpBasic();
+
+
 
             // csrf 토큰을 사용하지 않겠다는 소스
             // http.csrf().disable();
 
         // 다른 Thread 아래의 것들도 공유해서 사용할 수 있음.
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+
+        http.logout()
+//                .logoutUrl("/logout")
+                .logoutSuccessUrl("/");
+//                .logoutRequestMatcher()
+//                .invalidateHttpSession(true)
+//                .deleteCookies()
+//                .addLogoutHandler()
+//                .logoutSuccessHandler();
 
     }
 
