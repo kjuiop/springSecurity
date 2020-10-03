@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
@@ -78,10 +79,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             http.formLogin()
                 .loginPage("/login")
                 .permitAll();
+
+
 //                .usernameParameter("my-username")
 //                .passwordParameter("my-password");
 
             http.httpBasic();
+
+
+//            http.anonymous()
+//                .principal()
+//                .authorities()
+//                .key()
 
 
 
@@ -100,6 +109,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .addLogoutHandler()
 //                .logoutSuccessHandler();
 
+        // 시큐리티 세션 설정
+//        http.sessionManagement()
+//                .sessionFixation().changeSessionId();
+//        http.sessionManagement()
+//                .sessionFixation().migrateSession();
+//        http.sessionManagement()
+//                .sessionFixation()
+//                .changeSessionId()
+//                .invalidSessionUrl("/login");
+
+//        http.sessionManagement()
+//                .sessionFixation()
+//                .changeSessionId()
+//                .maximumSessions(1)
+//                .maxSessionsPreventsLogin(false);
+
+        http.sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
     }
 
 
