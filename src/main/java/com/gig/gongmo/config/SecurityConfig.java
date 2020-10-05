@@ -1,23 +1,34 @@
 package com.gig.gongmo.config;
 
 import com.gig.gongmo.account.AccountService;
+import com.gig.gongmo.common.LoggingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.AffirmativeBased;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -68,6 +79,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+        http.addFilterBefore(new LoggingFilter(), WebAsyncManagerIntegrationFilter.class);
+
+
         http.authorizeRequests()
                 .mvcMatchers("/", "/info", "/account/**", "/signup").permitAll()
                 .mvcMatchers("/admin").hasRole("ADMIN")
@@ -76,17 +91,43 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .expressionHandler(expressionHandler());
 //                .accessDecisionManager(accessDecisionManager());
 
+
+//        http.authorizeRequests()
+//                .mvcMatchers("/user").hasAuthority("ROLE_USER")
+//                .anyRequest().anonymous()
+//                // 다시 로그인이 필요할 때
+//                .anyRequest().fullyAuthenticated()
+//                .anyRequest().denyAll()
+//                .anyRequest().not().anonymous()
+
+
             http.formLogin()
                 .loginPage("/login")
                 .permitAll();
 
-
+//              로그인 페이지 파라미터 커스텀
 //                .usernameParameter("my-username")
 //                .passwordParameter("my-password");
 
             http.httpBasic();
 
+            // TODO ExceptionTranslatorFilter -> FilterSecurityInterceptor (AccessDecisionManager, AffirmativeBased)
+            // TODO AuthenticationException -> AuthenticationEntryPoint
+            // TODO AccessDeniedException -> AccessDeniedHandler
 
+
+        // TODO 핸들러를 만들고 주입하는 방법으로 해보자.
+            http.exceptionHandling()
+                    .accessDeniedHandler((request, response, accessDeniedException) -> {
+                        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                        String username = principal.getUsername();
+                        System.out.println(username + " is denied to access " + request.getRequestURI());
+                        response.sendRedirect("/access-denied");
+                    });
+//                    .accessDeniedPage("/access-denied");
+
+
+//         익명 사용자 관련 설정
 //            http.anonymous()
 //                .principal()
 //                .authorities()
@@ -127,9 +168,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+
+
+        http.rememberMe()
+                // 폼에서 remember me 값을 안보내줘도 remember me 사용
+                .alwaysRemember(false)
+                // remember Me 파라미터 이름 설정
+                .rememberMeParameter("remember")
+                // 토큰 유효기간 설정, 기본값 2주
+                .tokenValiditySeconds(1)
+                // 쿠키 보안 설정
+                .useSecureCookie(true)
+                .userDetailsService(accountService)
+                .key("remember-me-sample");
     }
 
-
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
     /**
      userDetailsService 주입 방법

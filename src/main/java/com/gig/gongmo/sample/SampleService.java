@@ -4,17 +4,26 @@ import com.gig.gongmo.account.Account;
 import com.gig.gongmo.account.AccountContext;
 import com.gig.gongmo.common.SecurityLogger;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.Collection;
 
 @Service
 public class SampleService {
 
+
+    @Secured("ROLE_USER")
+//    @RolesAllowed("ROLE_USER")
+//    @PreAuthorize("hasRole('USER')")
+//    @PostAuthorize("hasRole('USER')")
     public void dashboard() {
 
         // SecurityContextHolder 를 통해서 로그인 한 객체를 어디서든지 사용할 수 있음.
@@ -27,6 +36,7 @@ public class SampleService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         System.out.println("===============================");
+        System.out.println(authentication);
         System.out.println(userDetails.getUsername());
 
         // 로그인한 principal 의 권한 ( Roles )
@@ -50,5 +60,10 @@ public class SampleService {
     public void asyncService() {
         SecurityLogger.log("Async Service");
         System.out.println("Async service is called");
+    }
+
+    @PreAuthorize("#username == authentication.principal.username")
+    public void securedTest(String username) {
+        System.out.println("============");
     }
 }
