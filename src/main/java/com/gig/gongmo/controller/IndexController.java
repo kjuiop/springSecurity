@@ -1,6 +1,7 @@
 package com.gig.gongmo.controller;
 
 import com.gig.gongmo.account.*;
+import com.gig.gongmo.book.BookRepository;
 import com.gig.gongmo.common.SecurityLogger;
 import com.gig.gongmo.sample.SampleService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class IndexController {
 
     private final SampleService sampleService;
     private final AccountRepository accountRepository;
+    private final BookRepository bookRepository;
 
     @GetMapping("/")
     public String index(Model model, @CurrentUser Account account) {
@@ -79,6 +81,7 @@ public class IndexController {
     @GetMapping("/user")
     public String user(Model model, Principal principal) {
         model.addAttribute("message", "Hello User, " + principal.getName());
+        model.addAttribute("books", bookRepository.findCurrentUserBooks());
         return "user";
     }
 
